@@ -11,6 +11,8 @@ import UIKit
 class MealTableViewCell: UITableViewCell {
     //MARK: Properties
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var priceLabel: UILabel!
+    @IBOutlet weak var makeTimeLabel: UILabel!
     @IBOutlet weak var ratingControl: RatingControl!
     @IBOutlet weak var photoImageView: UIImageView!
     

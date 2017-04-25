@@ -33,13 +33,13 @@ class MealTableViewController: UITableViewController {
         let photo2 = UIImage(named: "meal2")
         let photo3 = UIImage(named: "meal3")
         
-        guard let meal1 = Meal(name: "Caprese Salad", photo: photo1, rating: 4) else {
+        guard let meal1 = Meal(name: "Caprese Salad", photo: photo1, rating: 4, price: 20, makeTime: 20) else {
             fatalError("Unable to instantiate meal1")
         }
-        guard let meal2 = Meal(name: "Chicken and Potatoes", photo: photo2, rating: 5) else {
+        guard let meal2 = Meal(name: "Chicken and Potatoes", photo: photo2, rating: 5, price: 10, makeTime: 30) else {
             fatalError("Unable to instantiate meal2")
         }
-        guard let meal3 = Meal(name: "Pasta with Meatballs", photo: photo3, rating: 3) else {
+        guard let meal3 = Meal(name: "Pasta with Meatballs", photo: photo3, rating: 3, price: 50, makeTime: 60) else {
             fatalError("Unable to instantiate meal3")
         }
         meals += [meal1, meal2, meal3]
@@ -60,10 +60,12 @@ class MealTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.leftBarButtonItem = editButtonItem
-        if let savedMeals = loadMeals() {
+        if let savedMeals = loadMeals(), savedMeals.count > 0 {
             meals += savedMeals
+            os_log("saved meals is not empty, load saved meals", log: OSLog.default, type: .debug)
         } else {
             loadSampleMeals()
+            os_log("saved meals is empty, load sample meals", log: OSLog.default, type: .debug)
         }
     }
 
@@ -93,6 +95,8 @@ class MealTableViewController: UITableViewController {
         cell.nameLabel.text = meal.name
         cell.photoImageView.image = meal.photo
         cell.ratingControl.rating = meal.rating
+        cell.priceLabel.text = String(format: "Price:%.2lf", meal.price)
+        cell.makeTimeLabel.text = String(format: "makeTime:%d", meal.makeTime)
 
         return cell
     }
@@ -145,7 +149,7 @@ class MealTableViewController: UITableViewController {
                 fatalError("Unexpected destination: \(segue.destination)")
             }
             guard let selectedMealCell = sender as? MealTableViewCell else {
-                fatalError("Unexpected sender \(sender)")
+                fatalError("Unexpected sender \(sender ?? "")")
             }
             guard let indexPath = tableView.indexPath(for: selectedMealCell) else {
                 fatalError("The selected cell is not being displayed by the table")
@@ -153,7 +157,7 @@ class MealTableViewController: UITableViewController {
             let selectedMeal = meals[indexPath.row]
             mealDetailViewController.meal = selectedMeal
         default:
-            fatalError("Unexpected segue idenfifier \(segue.identifier)")
+            fatalError("Unexpected segue idenfifier \(segue.identifier ?? "")")
         }
     }
 

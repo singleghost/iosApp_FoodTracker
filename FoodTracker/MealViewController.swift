@@ -13,6 +13,8 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     //MARK: Properties
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var photoImageView: UIImageView!
+    @IBOutlet weak var mealPriceTextField: UITextField!
+    @IBOutlet weak var makeTimeTextField: UITextField!
     @IBOutlet weak var ratingControl: RatingControl!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var cancelButton: UIBarButtonItem!
@@ -24,11 +26,15 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         
         //Handle the text field's user input through delegate callbacks
         nameTextField.delegate = self
+        mealPriceTextField.delegate = self
+        makeTimeTextField.delegate = self
         
         //set up views if editing an existing Meal.
         if let meal = meal {
             navigationItem.title = meal.name
             nameTextField.text = meal.name
+            mealPriceTextField.text = String(format: "%.2lf", meal.price)
+            makeTimeTextField.text = String(format: "%d", meal.makeTime)
             photoImageView.image = meal.photo
             ratingControl.rating = meal.rating
         }
@@ -44,7 +50,9 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         updateSaveButtonState()
-        navigationItem.title = textField.text
+        if textField === nameTextField {
+            navigationItem.title = textField.text
+        }
     }
     func textFieldDidBeginEditing(_ textField: UITextField) {
         saveButton.isEnabled = false
@@ -84,7 +92,10 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         let name = nameTextField.text ?? ""
         let photo = photoImageView.image
         let rating = ratingControl.rating
-        meal = Meal(name: name, photo: photo, rating: rating)
+        let price = Double(mealPriceTextField.text ?? "") ?? 0.0
+        let makeTime = Int(makeTimeTextField.text ?? "") ?? 0
+        
+        meal = Meal(name: name, photo: photo, rating: rating, price: price, makeTime: makeTime)
         
     }
     //MARK: Actions
@@ -98,7 +109,9 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     //MARK: Private Methods
     private func updateSaveButtonState() {
         let text = nameTextField.text ?? ""
-        saveButton.isEnabled = !text.isEmpty
+        if !text.isEmpty, let _ = Double(mealPriceTextField.text ?? ""), let _ = Int(makeTimeTextField.text ?? "") {
+            saveButton.isEnabled = true
+        }
     }
 }
 
