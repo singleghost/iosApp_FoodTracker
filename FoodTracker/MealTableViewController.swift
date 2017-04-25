@@ -24,6 +24,7 @@ class MealTableViewController: UITableViewController {
                 meals.append(meal)
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
             }
+            saveMeals()
         }
     }
     //MARK: Private Methods
@@ -43,10 +44,27 @@ class MealTableViewController: UITableViewController {
         }
         meals += [meal1, meal2, meal3]
     }
+    
+    private func saveMeals() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
+        if isSuccessfulSave {
+            os_log("Meals successfully saved.", log: OSLog.default, type: .debug)
+        } else {
+            os_log("Failed to save meals", log: OSLog.default, type: .debug)
+        }
+    }
+    
+    private func loadMeals() -> [Meal]? {
+        return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.leftBarButtonItem = editButtonItem
-        loadSampleMeals()
+        if let savedMeals = loadMeals() {
+            meals += savedMeals
+        } else {
+            loadSampleMeals()
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -90,6 +108,7 @@ class MealTableViewController: UITableViewController {
         if editingStyle == .delete {
             // Delete the row from the data source
             meals.remove(at: indexPath.row)
+            saveMeals()
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
